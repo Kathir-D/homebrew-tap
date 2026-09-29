@@ -27,7 +27,7 @@ cask "sonar" do
   # checksum-verified before this runs, so the quarantine attribute is no longer
   # the thing standing between the user and an app they knowingly installed from
   # this tap.
-  postflight do
+  postflight_steps do
     system_command "/usr/bin/xattr",
                    args: ["-dr", "com.apple.quarantine", "/Applications/Sonar.app"],
                    must_succeed: false
