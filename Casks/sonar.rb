@@ -35,16 +35,24 @@ cask "sonar" do
   # verifies the SHA-256 above before any of this runs, so the checksum is the
   # integrity gate and the quarantine attribute is no longer what stands between
   # the user and an app they knowingly installed from this tap.
+  # rubocop:disable Cask/InstallSteps
+  # `brew style` asks for postflight_steps, which cannot do this job: that DSL
+  # exposes only if_path_exists, on_macos, version and token, and has no way to
+  # run a command. The older postflight block can, and still executes. Suppressing
+  # the cop here rather than leaving style failing, with the reason recorded.
   begin
     postflight do
-      system_command "/usr/bin/xattr",
-                     args: ["-dr", "com.apple.quarantine", "/Applications/Sonar.app"],
-                     must_succeed: false
+      system_command(
+        "/usr/bin/xattr",
+        args: ["-dr", "com.apple.quarantine", "/Applications/Sonar.app"],
+        must_succeed: false
+      )
     end
   rescue NoMethodError
     # Homebrew dropped the postflight block. Nothing to do; the install itself
     # still succeeds.
   end
+  # rubocop:enable Cask/InstallSteps
 
   uninstall quit: "com.KathirD.sonar"
 
