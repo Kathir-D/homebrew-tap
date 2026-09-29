@@ -4,39 +4,41 @@
 brew tap Kathir-D/tap
 ```
 
-| Install | What | Source |
+| Project | Install | What it does |
 | --- | --- | --- |
-| `brew install --cask kathir-d/tap/sonar` | Spotify in your menu bar, with hybrid auto-pause | [Kathir-D/Sonar](https://github.com/Kathir-D/Sonar) |
-| `brew install kathir-d/tap/headless-spotify` | Hide Spotify from the Dock and Cmd-Tab, keep AppleScript control | [Kathir-D/headless-spotify](https://github.com/Kathir-D/headless-spotify) |
-| `brew install --cask kathir-d/tap/stockroom` | Barcode-driven equipment checkout for a school media department. Arrives with its first release | [Kathir-D/Stockroom](https://github.com/Kathir-D/Stockroom) |
+| [Sonar](https://github.com/Kathir-D/Sonar) | `brew install --cask kathir-d/tap/sonar` | Spotify in your menu bar, pausing when something else makes noise |
+| [headless-spotify](https://github.com/Kathir-D/headless-spotify) | `brew install kathir-d/tap/headless-spotify` | Hides Spotify from the Dock and Cmd-Tab, made to pair with Sonar |
+| [Stockroom](https://github.com/Kathir-D/Stockroom) | `brew install --cask kathir-d/tap/stockroom` | Barcode equipment checkout for a school media department. Arrives with its first release |
 
-**No `brew trust` needed.** Every command in that table names its tap, and that is what does the
-trusting: `brew install` trusts a cask or formula named with its tap before it resolves it. Verified
-on Homebrew 7.0.7 with the tap untrusted — `brew install --cask kathir-d/tap/sonar` installed and
-added `kathir-d/tap/sonar` to `~/.homebrew/trust.json` on its own.
+## Updates
 
-You only need `brew trust --tap Kathir-D/tap` if you prefer the short names after tapping, where
-`brew install --cask sonar` has nothing in the command to identify the tap with. Homebrew 7 refuses
-to load anything from an untrusted tap, and that is the error the short form gets you.
+```sh
+brew update && brew outdated                            # check
+brew update && brew upgrade --cask kathir-d/tap/sonar   # upgrade
+```
 
-Updates: `brew update && brew upgrade`. Name the package to be explicit — `brew upgrade --cask
-kathir-d/tap/sonar` — and `brew update` first, because it refreshes the tap and that is the only way
-Homebrew learns a new version exists. `brew outdated` lists them without changing anything.
+`brew update` first — it refreshes the tap, and that's the only way Homebrew learns a new version
+exists. Nothing here updates itself.
 
-Each project's release workflow commits its own file here (`Casks/sonar.rb`,
-`Formula/headless-spotify.rb`, `Casks/stockroom.rb`) using a deploy key that can write to this
-repository only. Don't edit those files by hand; change them in the project and release.
+## Trust
+
+Homebrew 7 won't load a cask from a tap it doesn't trust, but you needn't tell it about this one:
+every command above names its tap, and `brew install` trusts a cask or formula named with its tap
+before resolving it. `brew trust --tap Kathir-D/tap` is only for short names like
+`brew install --cask sonar`, which identify nothing.
 
 ## After installing
 
-- **headless-spotify** only puts files in place. The step that edits Spotify is separate:
-  `sudo "$(brew --prefix headless-spotify)/install.sh"`. See `brew info headless-spotify`.
-- **Stockroom** needs one more command: `stockroom setup`. Run it as yourself, not with `sudo`; it
-  asks for your password once, because it writes the two LaunchDaemons that start Stockroom and
-  PostgreSQL at boot with nobody logged in. [docs/INSTALL.md](https://github.com/Kathir-D/Stockroom/blob/main/docs/INSTALL.md)
-  covers it. Stockroom is a school equipment checkout system, so it also installs on Debian and
-  Ubuntu with `curl … get.sh | sudo bash` — see the
-  [README](https://github.com/Kathir-D/Stockroom#install). The cask arrives with its first release.
-- **Sonar** and **Stockroom** are ad-hoc signed and not notarized. Both casks clear the quarantine
-  attribute after the checksum is verified, so macOS opens them without the one-time "Open Anyway"
-  approval. (`brew install --no-quarantine` no longer exists in Homebrew 7.)
+- **Sonar** and **stockroom** are ad-hoc signed and not notarized. Both casks clear the quarantine
+  flag after Homebrew verifies the SHA-256, so macOS won't ask you to approve them.
+- **headless-spotify** only places files. To make it edit Spotify:
+  `sudo "$(brew --prefix headless-spotify)/install.sh"`.
+- **stockroom** is a server, not an app. Run `stockroom setup` after installing; it asks for your
+  password once, to write two LaunchDaemons. It also runs on Debian and Ubuntu — see
+  [the install guide](https://github.com/Kathir-D/Stockroom/blob/main/docs/INSTALL.md).
+
+## For maintainers
+
+Each release workflow owns one file here — `Casks/sonar.rb`, `Formula/headless-spotify.rb`,
+`Casks/stockroom.rb` — through a deploy key scoped to this repository. Change the project and
+release; don't hand-edit these.
