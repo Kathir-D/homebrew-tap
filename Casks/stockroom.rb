@@ -16,18 +16,18 @@
 # NOTE: `version` and the `sha256` values are refreshed by CI
 # (.github/workflows/release.yml) on every `v*` tag, which also copies this file
 # into the Kathir-D/homebrew-tap tap. Do not hand-edit the version or the
-# checksums. `0.9.0` and the `__SHA256_*__` placeholders are what CI
+# checksums. `0.9.2` and the `__SHA256_*__` placeholders are what CI
 # substitutes; the committed file in the tap has real values.
 cask "stockroom" do
-  version "0.9.0"
+  version "0.9.2"
 
   on_macos do
     on_arm do
-      sha256 "e48654f09726b01417c2a0c3aeb15f9cab0895891c23c005490d113bb55bb14b"
+      sha256 "11d603834825b0b3316eda1b01d8926798e1efec57afa8e015a51e3112b02f30"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_darwin_arm64.tar.gz"
     end
     on_intel do
-      sha256 "fa7b86317c26999b88342ba0852cc86faf3770acd637140b8ee58ea9cd4f530a"
+      sha256 "9e30160c0a02d0ca029665104967bab5864d0d796f93b0361164e8ff80a33340"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_darwin_amd64.tar.gz"
     end
   end
@@ -42,11 +42,11 @@ cask "stockroom" do
   # groups. Both offenses are the same rule seen from either side.
   on_linux do
     on_arm do
-      sha256 "8fa6bba51d34e25f01769a67819be802fa19abefb9cb0d9e26b0dc99d10d1e97"
+      sha256 "c748431ac1949b161d31e609cd37e55d1ca66f3fe5abcc671f2f5c39d85983d3"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_linux_arm64.tar.gz"
     end
     on_intel do
-      sha256 "3c5b2e5b8573427db40ca3a0d2540be6812ffc16de7962a6fe58ea89e47bfa70"
+      sha256 "2a48c8e3818ef159d0994c724a5f2c732ba1705b3b10ec32a65b0ad12b0dd0e3"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_linux_amd64.tar.gz"
     end
   end
@@ -91,7 +91,7 @@ cask "stockroom" do
   # only if_path_exists, on_macos, version and token and cannot run a command at
   # all; and Style/DisableCopsWithinSourceCodeDirective forbids suppressing the
   # cop. Check the cask with the cop excluded:
-  #   brew style --except Cask/InstallSteps kathir-d/tap/stockroom
+  #   brew style --except-cops Cask/InstallSteps kathir-d/tap/stockroom
   begin
     postflight do
       system_command(
