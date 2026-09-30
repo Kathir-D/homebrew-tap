@@ -20,8 +20,8 @@
 # (.github/workflows/release.yml) on every `v*` tag, which also copies this
 # file into the Kathir-D/homebrew-tap tap — do not hand-edit them.
 cask "headless-spotify" do
-  version "0.1.0-beta.3"
-  sha256 "2430b62084e3e1c2a116f68e27cbda630e2f0de9d6b4d07e45371ea10054189b"
+  version "0.1.0-beta.4"
+  sha256 "ffbba2804f5c7a7c1fb989a3e31fa0d87d5fbb56f5bebe42dc9b16002ec3bb52"
 
   url "https://github.com/Kathir-D/headless-spotify/releases/download/v#{version}/headless-spotify-#{version}-macos.tar.gz"
   name "headless-spotify"
@@ -54,6 +54,20 @@ cask "headless-spotify" do
   # from this tap. `brew install --no-quarantine` would say the same thing, but
   # it was removed in Homebrew 7 and `postflight_steps` cannot run a command.
   #
+  # The Caskroom is cleared as well as the app, and that second path is not
+  # tidiness — it is the actual bug this cask had. `binary` links
+  # /opt/homebrew/bin/headless-spotify at the copy Homebrew staged in the
+  # Caskroom, which is *outside* the .app, so clearing the bundle left that
+  # binary quarantined. The menu bar extra is a GUI process, and a GUI process
+  # exec'ing a quarantined binary is the one case that trips Gatekeeper's
+  # assessment: dyld blocks inside _dyld_start, CoreServicesUIAgent puts up
+  # "Apple could not verify "headless-spotify" is free of malware", and the
+  # Enable/Disable row hangs forever with no output. Running the same binary
+  # from a terminal does not prompt, which is why the CLI's own `--version`
+  # check in scripts/check-cask-install.sh passed for as long as it existed and
+  # the bug shipped anyway. Sonar never hit this because it is `app` only:
+  # everything it installs lives inside the one bundle cleared here.
+  #
   # The rescue matters. Without it, removing `postflight` would not merely stop
   # the quarantine from being cleared — it would make the cask file invalid, and
   # an invalid cask stops the whole tap from loading, so `brew tap` would fail
@@ -75,11 +89,80 @@ cask "headless-spotify" do
         args:         ["-dr", "com.apple.quarantine", "/Applications/headless-spotify.app"],
         must_succeed: false,
       )
+      # The staged tree the `binary` stanza linked into the Homebrew prefix.
+      # `caskroom_path` is <HOMEBREW_CASKROOM>/headless-spotify; clearing it
+      # recursively covers bin/headless-spotify, the injector dylib, and the
+      # helper scripts, and costs one call. must_succeed stays false because a
+      # Homebrew that has dropped the accessor should not fail the install.
+      system_command(
+        "/usr/bin/xattr",
+        args:         ["-dr", "com.apple.quarantine", caskroom_path.to_s],
+        must_succeed: false,
+      )
       system_command(
         "/usr/bin/open",
         args:         ["-g", "/Applications/headless-spotify.app"],
         must_succeed: false,
       )
+      # The privileged step, done here so `brew install --cask` is the only
+      # command a user ever types.
+      #
+      # It used to be a line in the caveats, which meant the app installed, the
+      # menu bar icon appeared, and nothing at all happened until the user read
+      # forty lines of prose to discover there was a second command. A user who
+      # never runs it gets a menu bar extra that does nothing, with no way to
+      # tell that from a broken one.
+      #
+      # Gated on the Spotify version, and the gate is the whole point. Hiding
+      # works by setting LSUIElement in Spotify's Info.plist and ad-hoc
+      # re-signing the bundle. Spotify 1.3.1 and newer quit on launch whenever
+      # that key is present, so the edit is guaranteed to fail there: install.sh
+      # rolls the plist back and carries on. What it cannot roll back is the
+      # re-sign, because a bundle cannot be given back Spotify's Developer ID
+      # signature by anything on this machine. So running the edit against a
+      # blocked Spotify costs the user a bundle that fails `codesign -v`, in
+      # exchange for nothing at all.
+      #
+      # So: below 1.3.1, where hiding can actually work, it is done for them.
+      # At or above it, nothing is touched and one line says why. Comparing with
+      # Gem::Version rather than string comparison, because "1.3.10" sorts
+      # before "1.3.9" as a string.
+      spotify_version = begin
+        plist = "/Applications/Spotify.app/Contents/Info.plist"
+        system_command(
+          "/usr/libexec/PlistBuddy", args: ["-c", "Print :CFBundleShortVersionString", plist]
+        )&.stdout&.strip
+      rescue
+        nil
+      end
+      hiding_blocked = begin
+        Gem::Version.new(spotify_version) >= Gem::Version.new("1.3.1")
+      rescue
+        # An unknown version is treated as blocked. Guessing wrong the other way
+        # would mean re-signing a user's Spotify on a hunch.
+        !spotify_version.nil?
+      end
+
+      if hiding_blocked
+        ohai "Spotify #{spotify_version || "version unknown"} quits when LSUIElement is set, " \
+             "so hiding is not being applied. Everything else is installed and working."
+      else
+        # `/usr/bin/sudo` as the executable rather than `sudo: true` on the
+        # system_command, because install.sh insists on being invoked *through*
+        # sudo: it needs SUDO_USER to relaunch Spotify as the console user
+        # rather than as root, which would hand it the wrong session.
+        #
+        # must_succeed stays false so a user who declines the password prompt,
+        # or has no sudo rights, still ends up with a working app and CLI.
+        system_command(
+          "/usr/bin/sudo",
+          args:         [
+            "/Applications/headless-spotify.app/Contents/Resources/install.sh",
+            "/Applications/Spotify.app",
+          ],
+          must_succeed: false,
+        )
+      end
     end
   rescue NoMethodError
     # Homebrew dropped the postflight block. Nothing to do; the install itself
@@ -96,33 +179,12 @@ cask "headless-spotify" do
   ]
 
   caveats <<~EOS
-    The menu bar extra is installed and running: look for the headless-spotify
-    icon in the top bar. Its menu shows the version, an Enable/Disable hiding
-    toggle and Quit.
+    That was the whole install. Look for the music note in the top bar: its menu
+    has a Hide-from-Dock toggle, and it will offer to ask macOS for permission
+    the first time it needs it.
 
-    Nothing has touched Spotify yet, and that is deliberate. Hiding edits a
-    root-owned, signed system bundle, so it is the one step that needs sudo:
-
-      sudo /Applications/headless-spotify.app/Contents/Resources/install.sh
-
-    That also loads the watcher LaunchAgent so hiding survives Spotify updates
-    and restarts.
-
-    Blocked on Spotify >= 1.3.1 (verified 2026-09-28, macOS 26): Spotify quits
-    on launch whenever LSUIElement is present in its Info.plist, so on a current
-    Spotify the command above will finish installing, report that hiding did not
-    verify, roll your Info.plist back, leave Spotify running normally, and skip
-    the watcher. Nothing is broken; hiding simply does not take effect yet. The
-    menu bar icon, `headless-spotify status` and `headless-spotify restore` all
-    keep working. If Spotify ever honors LSUIElement again, no code change is
-    needed — only the notice in the README.
-
-    Afterwards:
-      headless-spotify status     # Dock? LSUIElement? player state?
-      headless-spotify restore    # back to normal, any time
-      headless-spotify watch --uninstall-agent   # stop the watcher only
-
-    To undo everything before `brew uninstall --cask headless-spotify`:
-      sudo /Applications/headless-spotify.app/Contents/Resources/uninstall.sh
+    If Spotify is still in the Dock, nothing is broken — Spotify 1.3.1 and newer
+    quit on launch when that is asked of them, so the edit was skipped rather
+    than applied and then half-undone. `headless-spotify status` says which.
   EOS
 end
