@@ -8,7 +8,7 @@ brew tap Kathir-D/tap
 | --- | --- | --- | --- |
 | [Sonar](https://github.com/Kathir-D/Sonar) | `brew install --cask kathir-d/tap/sonar` | `brew uninstall --cask kathir-d/tap/sonar` | Spotify in your menu bar, pausing when something else makes noise |
 | [headless-spotify](https://github.com/Kathir-D/headless-spotify) | `brew install --cask kathir-d/tap/headless-spotify` | `brew uninstall --cask kathir-d/tap/headless-spotify` | Hides Spotify from the Dock and Cmd-Tab, made to pair with Sonar |
-| [Stockroom](https://github.com/Kathir-D/Stockroom) | `brew install --cask kathir-d/tap/stockroom` | `brew uninstall --cask kathir-d/tap/stockroom` | Barcode equipment checkout for a school media department. Arrives with its first release |
+| [Stockroom](https://github.com/Kathir-D/Stockroom) | `brew install --cask kathir-d/tap/stockroom` | `brew uninstall --cask kathir-d/tap/stockroom` | Barcode equipment checkout for a school media department |
 
 ## Updates
 
@@ -16,6 +16,7 @@ brew tap Kathir-D/tap
 brew update && brew outdated                                # check
 brew update && brew upgrade --cask kathir-d/tap/sonar       # upgrade
 brew update && brew upgrade --cask kathir-d/tap/headless-spotify
+brew update && brew upgrade --cask kathir-d/tap/stockroom
 ```
 
 `brew update` first — it refreshes the tap, and that's the only way Homebrew learns a new version
@@ -50,9 +51,15 @@ before resolving it. `brew trust --tap Kathir-D/tap` is only for short names lik
 - **stockroom** is a server, not an app. Run `stockroom setup` after installing; it asks for your
   password once, to write two LaunchDaemons. It also runs on Debian and Ubuntu — see
   [the install guide](https://github.com/Kathir-D/Stockroom/blob/main/docs/INSTALL.md).
+  Upgrading over a working install keeps the database: the server dumps it with `pg_dump` before
+  applying a migration, and refuses to migrate rather than change the schema without a copy.
+  `stockroom doctor` reports the state of PostgreSQL, rclone, the config and the service.
 
 ## For maintainers
 
 Each release workflow owns one file here — `Casks/sonar.rb`, `Casks/headless-spotify.rb`,
 `Casks/stockroom.rb` — through a deploy key scoped to this repository. Change the project and
 release; don't hand-edit these.
+
+Each of those three casks is written and commented by hand, and its `version` and `sha256` are
+refreshed from that project's release. The rest of this file is edited by hand.
