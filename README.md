@@ -8,6 +8,7 @@ brew tap Kathir-D/tap
 | --- | --- | --- | --- |
 | [Sonar](https://github.com/Kathir-D/Sonar) | `brew install --cask kathir-d/tap/sonar` | `brew uninstall --cask kathir-d/tap/sonar` | Spotify in your menu bar, pausing when something else makes noise |
 | [headless-spotify](https://github.com/Kathir-D/headless-spotify) | `brew install --cask kathir-d/tap/headless-spotify` | `brew uninstall --cask kathir-d/tap/headless-spotify` | Hides Spotify from the Dock and Cmd-Tab, made to pair with Sonar |
+| [Trak](https://github.com/Kathir-D/Trak) | `brew install kathir-d/tap/trak` | `brew uninstall kathir-d/tap/trak` | A terminal UI and CLI for Spotify on macOS: now playing, album art or a visualizer, synced lyrics |
 | [Stockroom](https://github.com/Kathir-D/Stockroom) | `brew install --cask kathir-d/tap/stockroom` | `brew uninstall --cask kathir-d/tap/stockroom` | Barcode equipment checkout for a school media department |
 
 ## Updates
@@ -17,6 +18,7 @@ brew update && brew outdated                                # check
 brew update && brew upgrade --cask kathir-d/tap/sonar       # upgrade
 brew update && brew upgrade --cask kathir-d/tap/headless-spotify
 brew update && brew upgrade --cask kathir-d/tap/stockroom
+brew update && brew upgrade kathir-d/tap/trak               # a formula: no --cask
 ```
 
 `brew update` first — it refreshes the tap, and that's the only way Homebrew learns a new version
@@ -34,6 +36,11 @@ before resolving it. `brew trust --tap Kathir-D/tap` is only for short names lik
 - **Sonar**, **headless-spotify** and **stockroom** are all casks, so `--cask` is part of the
   command, not an optional extra. All three are ad-hoc signed and not notarized, and all three clear
   the quarantine flag after Homebrew verifies the SHA-256, so macOS won't ask you to approve them.
+- **Trak** is a formula, not a cask, so there is no `--cask` and no app: it installs one command,
+  `trak`, into Homebrew's `bin`. Type `trak` for the TUI, `trak status` for a one-liner. It is a
+  universal binary, ad-hoc signed and not notarized, and Homebrew's download is not quarantined, so
+  macOS shows no prompt. The first command that talks to Spotify asks your terminal for Automation
+  permission, once.
 - **headless-spotify** installs the app: `brew install --cask` puts a menu bar extra in
   `/Applications/headless-spotify.app` and starts it, so the icon is in your top bar before you run
   anything else. It does not touch Spotify.
@@ -58,8 +65,8 @@ before resolving it. `brew trust --tap Kathir-D/tap` is only for short names lik
 ## For maintainers
 
 Each release workflow owns one file here — `Casks/sonar.rb`, `Casks/headless-spotify.rb`,
-`Casks/stockroom.rb` — through a deploy key scoped to this repository. Change the project and
+`Casks/stockroom.rb`, `Formula/trak.rb` — through a deploy key scoped to this repository. Change the project and
 release; don't hand-edit these.
 
-Each of those three casks is written and commented by hand, and its `version` and `sha256` are
+Each of those casks is written and commented by hand, and its `version` and `sha256` are
 refreshed from that project's release. The rest of this file is edited by hand.
