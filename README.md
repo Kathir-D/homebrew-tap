@@ -15,10 +15,10 @@ brew tap Kathir-D/tap
 
 ```sh
 brew update && brew outdated                                # check
-brew update && brew upgrade --cask kathir-d/tap/sonar       # upgrade
-brew update && brew upgrade --cask kathir-d/tap/headless-spotify
-brew update && brew upgrade --cask kathir-d/tap/stockroom
-brew update && brew upgrade kathir-d/tap/trak               
+brew upgrade --cask kathir-d/tap/sonar       
+brew upgrade --cask kathir-d/tap/headless-spotify
+brew upgrade --cask kathir-d/tap/stockroom
+brew upgrade kathir-d/tap/trak               
 ```
 
 `brew update` first — it refreshes the tap, and that's the only way Homebrew learns a new version
