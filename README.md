@@ -18,7 +18,7 @@ brew update && brew outdated                                # check
 brew update && brew upgrade --cask kathir-d/tap/sonar       # upgrade
 brew update && brew upgrade --cask kathir-d/tap/headless-spotify
 brew update && brew upgrade --cask kathir-d/tap/stockroom
-brew update && brew upgrade kathir-d/tap/trak               # a formula: no --cask
+brew update && brew upgrade kathir-d/tap/trak               
 ```
 
 `brew update` first — it refreshes the tap, and that's the only way Homebrew learns a new version
@@ -36,10 +36,9 @@ before resolving it. `brew trust --tap Kathir-D/tap` is only for short names lik
 - **Sonar**, **headless-spotify** and **stockroom** are all casks, so `--cask` is part of the
   command, not an optional extra. All three are ad-hoc signed and not notarized, and all three clear
   the quarantine flag after Homebrew verifies the SHA-256, so macOS won't ask you to approve them.
-- **Trak** is a formula, not a cask, so there is no `--cask` and no app: it installs one command,
-  `trak`, into Homebrew's `bin`. Type `trak` for the TUI, `trak status` for a one-liner. It is a
-  universal binary, ad-hoc signed and not notarized, and Homebrew's download is not quarantined, so
-  macOS shows no prompt. The first command that talks to Spotify asks your terminal for Automation
+- **Trak** it installs one command, `trak`. Type `trak` for the TUI, `trak status` for a one-liner.
+  It is a universal binary, ad-hoc signed and not notarized, and Homebrew's download is not quarantined,
+  so macOS shows no prompt. The first command that talks to Spotify asks your terminal for Automation
   permission, once.
 - **headless-spotify** installs the app: `brew install --cask` puts a menu bar extra in
   `/Applications/headless-spotify.app` and starts it, so the icon is in your top bar before you run
