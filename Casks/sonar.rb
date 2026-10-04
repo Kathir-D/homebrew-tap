@@ -1,6 +1,6 @@
 cask "sonar" do
-  version "0.1.5"
-  sha256 "3c6aec9295e3ae2262916e325c007d0ea19deaca724985c1cfe70d424a0c6011"
+  version "0.1.6"
+  sha256 "7f3e3e52101ca6b23095bc03e22ef97b797efa921dc5022ed9ae68669f35ba82"
 
   url "https://github.com/Kathir-D/Sonar/releases/download/v#{version}/Sonar-#{version}.zip"
   name "Sonar"
