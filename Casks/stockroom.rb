@@ -16,18 +16,18 @@
 # NOTE: `version` and the `sha256` values are refreshed by CI
 # (.github/workflows/release.yml) on every `v*` tag, which also copies this file
 # into the Kathir-D/homebrew-tap tap. Do not hand-edit the version or the
-# checksums. `0.9.2` and the `__SHA256_*__` placeholders are what CI
+# checksums. The version and `__SHA256_*__` placeholders are what CI
 # substitutes; the committed file in the tap has real values.
 cask "stockroom" do
-  version "0.9.2"
+  version "0.9.3"
 
   on_macos do
     on_arm do
-      sha256 "11d603834825b0b3316eda1b01d8926798e1efec57afa8e015a51e3112b02f30"
+      sha256 "6acf9a4df2d4b1966d53722f5cec345c8030f864a467a3ec5a672868a149ad68"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_darwin_arm64.tar.gz"
     end
     on_intel do
-      sha256 "9e30160c0a02d0ca029665104967bab5864d0d796f93b0361164e8ff80a33340"
+      sha256 "2d338dac5122369a5b3dd40456c0995c5c422d9e982f5597b0abc30cad2c8208"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_darwin_amd64.tar.gz"
     end
   end
@@ -42,11 +42,11 @@ cask "stockroom" do
   # groups. Both offenses are the same rule seen from either side.
   on_linux do
     on_arm do
-      sha256 "c748431ac1949b161d31e609cd37e55d1ca66f3fe5abcc671f2f5c39d85983d3"
+      sha256 "ae2ec9b2288597b13a27209926a069c3ee097c28285d30a6fc0274d554232189"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_linux_arm64.tar.gz"
     end
     on_intel do
-      sha256 "2a48c8e3818ef159d0994c724a5f2c732ba1705b3b10ec32a65b0ad12b0dd0e3"
+      sha256 "57e4fe1452e475c75ffd778aca0b6c1e555f27013b7bea6b6c439a17521253d5"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_linux_amd64.tar.gz"
     end
   end
