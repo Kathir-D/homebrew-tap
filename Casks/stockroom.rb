@@ -19,15 +19,15 @@
 # checksums. The version and `__SHA256_*__` placeholders are what CI
 # substitutes; the committed file in the tap has real values.
 cask "stockroom" do
-  version "0.9.3"
+  version "0.9.4"
 
   on_macos do
     on_arm do
-      sha256 "6acf9a4df2d4b1966d53722f5cec345c8030f864a467a3ec5a672868a149ad68"
+      sha256 "fff270c32e9ae823b9a5b806bc67ce3c0070340b9ded7a32f1d854053dd8187d"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_darwin_arm64.tar.gz"
     end
     on_intel do
-      sha256 "2d338dac5122369a5b3dd40456c0995c5c422d9e982f5597b0abc30cad2c8208"
+      sha256 "18ce156eabc9d36cbb294cba7efd98e6825166d41cf62fea6a306c0862b1ff26"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_darwin_amd64.tar.gz"
     end
   end
@@ -42,11 +42,11 @@ cask "stockroom" do
   # groups. Both offenses are the same rule seen from either side.
   on_linux do
     on_arm do
-      sha256 "ae2ec9b2288597b13a27209926a069c3ee097c28285d30a6fc0274d554232189"
+      sha256 "917e05dc1b558ec17c973f8aa8ee6ec880684fef5e5a49a14c0bf0af9c24bced"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_linux_arm64.tar.gz"
     end
     on_intel do
-      sha256 "57e4fe1452e475c75ffd778aca0b6c1e555f27013b7bea6b6c439a17521253d5"
+      sha256 "5370213ecc827a7b8844fa4596cb9f4ba1fa7c53244034f7238511c79e92ab2e"
       url "https://github.com/Kathir-D/Stockroom/releases/download/v#{version}/stockroom_linux_amd64.tar.gz"
     end
   end
@@ -80,29 +80,19 @@ cask "stockroom" do
   # bundles; the same fix applies to a bare binary, and `staged_path` is the
   # copy Homebrew verified against the sha256 above.
   #
-  # The rescue matters for the reason the other two explain at length: without
-  # it, a Homebrew that dropped `postflight` would make this cask file invalid,
-  # and an invalid cask stops the whole tap from loading — `brew tap` would fail
-  # and Sonar and headless-spotify would stop installing too. Rescued, the worst
-  # case is one Gatekeeper approval by hand.
-  #
-  # `brew style` reports one offense on the block below, Cask/InstallSteps, and
-  # it cannot be resolved: Homebrew requires postflight_steps, whose DSL exposes
-  # only if_path_exists, on_macos, version and token and cannot run a command at
-  # all; and Style/DisableCopsWithinSourceCodeDirective forbids suppressing the
-  # cop. Check the cask with the cop excluded:
-  #   brew style --except-cops Cask/InstallSteps kathir-d/tap/stockroom
-  begin
-    postflight do
-      system_command(
-        "/usr/bin/xattr",
-        args:         ["-dr", "com.apple.quarantine", "#{staged_path}/stockroom"],
-        must_succeed: false,
-      )
+  # `postflight_steps`, not the old `postflight` block. Homebrew deprecated
+  # `postflight`: it printed a warning on every brew command that loaded the
+  # tap, and with HOMEBREW_DEVELOPER set it raised MethodDeprecatedError, which
+  # made this cask invalid and stopped the whole tap from loading, Sonar and
+  # headless-spotify included. Homebrew will raise that for everyone once it
+  # disables the block. `run` with `must_succeed: false` keeps the old
+  # behaviour: if xattr fails, the user approves the binary once by hand.
+  postflight_steps do
+    on_macos do
+      run "/usr/bin/xattr",
+          args:         ["-dr", "com.apple.quarantine", "{{staged_path}}/stockroom"],
+          must_succeed: false
     end
-  rescue NoMethodError
-    # Homebrew dropped the postflight block. Nothing to do; the install itself
-    # still succeeds, the user approves the binary once themselves.
   end
 
   caveats <<~EOS
